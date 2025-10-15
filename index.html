@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TERU AI Blog Generator（進化版・軽量画像）</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>TERU AI Blog Generator（進化版・軽量画像）</h1>
+      <p>タイトル提案・SEO強化（3000字）・アイキャッチ自動生成（1200×630・軽量）に対応。APIキーは各自で入力してください。</p>
+    </header>
+
+    <main>
+      <section class="controls">
+        <label>OpenAI APIキー（sk-から始まるキー）</label>
+        <input id="apiKey" type="password" placeholder="sk-..." /> <button id="saveKey">保存</button>
+
+        <label>キーワード（主要語：カンマ区切り）</label>
+        <input id="keywords" type="text" placeholder="例：副業,ブログ,SEO" />
+
+        <div class="row">
+          <div>
+            <label>口調</label>
+            <select id="tone">
+              <option value="です・ます調">です・ます調（丁寧）</option>
+              <option value="フレンドリー">フレンドリー</option>
+              <option value="男性的">男性的</option>
+              <option value="女性的">女性的</option>
+            </select>
+          </div>
+
+          <div>
+            <label>出力形式</label>
+            <select id="format">
+              <option value="html">HTML形式</option>
+              <option value="text">テキスト形式</option>
+            </select>
+          </div>
+        </div>
+
+        <label><input id="seoMode" type="checkbox" /> SEO強化モード（ONで3000文字以上・H2/H3構成）</label>
+
+        <label><input id="generateTitleAuto" type="checkbox" checked /> タイトル候補を自動提案（3案）</label>
+
+        <label><input id="generateImage" type="checkbox" /> アイキャッチ自動生成（1200×630 JPEG・軽量）</label>
+        <label>画像スタイル</label>
+        <select id="imageStyle">
+          <option>ビジネス（落ち着いた）</option>
+          <option>モダン（フラット）</option>
+          <option>写真風（人物・PC）</option>
+          <option>イラスト（シンプル）</option>
+        </select>
+
+        <div class="actions">
+          <button id="generate">記事を生成</button>
+          <button id="clear">クリア</button>
+        </div>
+      </section>
+
+      <section class="output">
+        <h2>タイトル候補</h2>
+        <div id="titleSuggestions" class="titles">（自動提案がONのとき、ここに候補が表示されます）</div>
+
+        <h2>出力結果</h2>
+        <div id="status" class="status">—</div>
+        <pre id="result" class="result" aria-live="polite"></pre>
+        <div class="output-actions">
+          <button id="copy">コピー</button>
+          <button id="download">ダウンロード (.txt)</button>
+        </div>
+
+        <h2>アイキャッチ（プレビュー）</h2>
+        <div id="imageArea">
+          <img id="eyecatchPreview" alt="アイキャッチプレビュー" style="max-width:100%;border-radius:8px;display:none;border:1px solid #ddd" />
+          <div id="imageStatus" class="status">（生成オフ）</div>
+          <a id="downloadImage" href="#" download="eyecatch.jpg" style="display:none">画像をダウンロード</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2025 TERU</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
