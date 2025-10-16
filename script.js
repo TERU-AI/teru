@@ -20,7 +20,7 @@ function buildArticlePrompt(keywords, tone, format) {
 
 // プロキシ経由でChat呼び出し
 async function callChat(messages, max_tokens=2000, temperature=0.3){
-  const res = await fetch(`${PROXY_URL}/v1/chat`, {
+  const res = await fetch(`${https://teru-ai-proxy.onrender.com}/v1/chat`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ messages, max_tokens, temperature })
