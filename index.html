@@ -1,36 +1,82 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>TERU AI SEO+ Proxy Edition</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TERU AI Blog Generator（SEO-Expert）</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>TERU AI SEO+（Render Proxy版）</h1>
-  <label>キーワード: <input id="keywords" placeholder="例：副業 ブログ"></label><br>
-  <label>口調: 
-    <select id="tone">
-      <option>ですます調</option>
-      <option>フランク</option>
-      <option>男性的</option>
-      <option>女性的</option>
-    </select>
-  </label><br>
-  <label>出力形式:
-    <select id="format">
-      <option value="html">HTML</option>
-      <option value="text">プレーンテキスト</option>
-    </select>
-  </label><br>
-  <label><input type="checkbox" id="generateImage"> アイキャッチ生成（gpt-image-1-mini）</label><br><br>
+  <div class="wrap">
+    <header class="hero">
+      <h1>TERU AI Blog Generator（SEO-Expert）</h1>
+      <p>SEO検定1級テンプレート内蔵。GPT-4-turboで導入文を含めた3000文字以上の記事を生成します。</p>
+    </header>
 
-  <button onclick="generateArticle()">記事を生成</button>
-  <button onclick="copyToClipboard(document.getElementById('result').textContent)">コピー</button>
-  <button onclick="downloadText('article.txt', document.getElementById('result').textContent)">保存</button>
+    <main>
+      <section class="controls">
+        <label>キーワード（主要語：カンマ区切り）</label>
+        <input id="keywords" type="text" placeholder="例：副業,ブログ,SEO" />
 
-  <p id="status">—</p>
-  <textarea id="result" rows="20" cols="80"></textarea>
-  <br>
-  <img id="eyecatch" style="display:none;max-width:600px;">
+        <div class="row">
+          <div>
+            <label>口調</label>
+            <select id="tone">
+              <option value="です・ます調">です・ます調（丁寧）</option>
+              <option value="フレンドリー">フレンドリー</option>
+              <option value="男性的">男性的</option>
+              <option value="女性的">女性的</option>
+            </select>
+          </div>
+
+          <div>
+            <label>出力形式</label>
+            <select id="format">
+              <option value="html">HTML形式</option>
+              <option value="text">テキスト形式</option>
+            </select>
+          </div>
+        </div>
+
+        <label><input id="seoExpert" type="checkbox" /> SEO-Expert モード（SEO検定1級テンプレートを適用）</label>
+        <label><input id="titleSuggest" type="checkbox" checked /> タイトル自動提案（3案）</label>
+        <label><input id="generateImage" type="checkbox" /> アイキャッチ自動生成（1200×630）</label>
+
+        <div class="actions">
+          <button id="generate">記事を生成</button>
+          <button id="clear">クリア</button>
+        </div>
+
+        <small class="note">※ Renderプロキシ経由で GPT-4-turbo / gpt-image-1-mini を呼び出します。</small>
+      </section>
+
+      <section class="output">
+        <h2>タイトル候補</h2>
+        <div id="titleSuggestions" class="titles">（候補がここに表示されます）</div>
+
+        <h2>生成ステータス</h2>
+        <div id="status" class="status">—</div>
+
+        <h2>生成結果</h2>
+        <pre id="result" class="result" aria-live="polite"></pre>
+
+        <div class="output-actions">
+          <button id="copy">コピー</button>
+          <button id="download">ダウンロード (.txt)</button>
+        </div>
+
+        <h2>アイキャッチ（プレビュー）</h2>
+        <img id="eyecatchPreview" style="max-width:100%;display:none;border-radius:8px;border:1px solid #ddd" alt="eyecatch" />
+        <div id="imageStatus" class="status">（画像未生成）</div>
+        <a id="downloadImage" href="#" download="eyecatch.jpg" style="display:none">画像をダウンロード</a>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2025 TERU</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
