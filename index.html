@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TERU AI Blog Generator（SEO Expert）</title>
+  <title>TERU AI Blog Generator（SEO Expert Ver.2）</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrap">
     <header class="hero">
-      <h1>TERU AI Blog Generator（SEO Expert）</h1>
-      <p>Renderプロキシ経由（GPT-4-turbo）で、3000文字以上・H2/H3構成＋最後にまとめ（1回のみ）を生成します。</p>
+      <h1>TERU AI Blog Generator（SEO Expert Ver.2）</h1>
+      <p>H2×4以上・各H2にH3×3（各300字以上）・総文字数3000字以上・最後にまとめ1回のみ。SERPリライト対応。</p>
     </header>
 
     <main>
-      <section class="controls card">
+      <section class="card">
         <label>キーワード（主要語：カンマ区切り）</label>
         <input id="keywords" type="text" placeholder="例：副業, ブログ, SEO" />
 
@@ -51,9 +51,7 @@
         <div class="manual-title">
           <label>自分でタイトルを入力（候補が気に入らない場合）</label>
           <input id="manualTitle" type="text" placeholder="ここに自作タイトルを入力" />
-          <div class="actions">
-            <button id="btnUseManual" class="btn">このタイトルを使う</button>
-          </div>
+          <div class="actions"><button id="btnUseManual" class="btn">このタイトルを使う</button></div>
         </div>
       </section>
 
