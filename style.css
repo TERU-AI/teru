@@ -1,0 +1,30 @@
+:root{
+  --blue:#0b5ed7;
+  --text:#0b1724;
+  --muted:#64748b;
+  --bg:#f4f8fc;
+  --card:#fff;
+  --bd:#e6eef8;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+body{font-family:'Noto Sans JP',system-ui,-apple-system,Roboto,'Segoe UI',sans-serif;margin:0;background:var(--bg);color:var(--text)}
+.wrap{max-width:980px;margin:0 auto;padding:20px}
+.hero{padding:14px 0 18px}
+.hero h1{margin:0 0 6px;color:var(--blue)}
+.hero p{margin:0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--radius);padding:16px;margin:12px 0;box-shadow:0 10px 24px rgba(2,6,23,.06)}
+label{display:block;font-weight:700;margin:10px 0 6px}
+input[type="text"],select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:10px 14px;border:1px solid var(--bd);background:#eef5ff;color:var(--blue);font-weight:700;border-radius:10px;cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff;border-color:transparent}
+.hidden{display:none}
+.titles{display:flex;gap:10px;flex-wrap:wrap}
+.title-btn{flex:1;min-width:220px;background:#f8fbff;border:1px solid #dceafe;border-radius:10px;padding:10px;cursor:pointer}
+.title-btn:hover{box-shadow:0 12px 28px rgba(6,78,153,.08)}
+.confirmed{color:var(--blue);font-weight:800}
+.result{background:#fff;border:1px solid var(--bd);border-radius:10px;min-height:260px;padding:12px;white-space:pre-wrap}
+.status{color:var(--muted);margin-top:8px}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 0}
+.manual-title{margin-top:10px}

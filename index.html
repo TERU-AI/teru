@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TERU AI Blog Generator（SEO Expert）</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>TERU AI Blog Generator（SEO Expert）</h1>
+      <p>Renderプロキシ経由（GPT-4-turbo）で、3000文字以上・H2/H3構成＋最後にまとめ（1回のみ）を生成します。</p>
+    </header>
+
+    <main>
+      <section class="controls card">
+        <label>キーワード（主要語：カンマ区切り）</label>
+        <input id="keywords" type="text" placeholder="例：副業, ブログ, SEO" />
+
+        <label>口調</label>
+        <select id="tone">
+          <option value="丁寧">丁寧</option>
+          <option value="フレンドリー">フレンドリー</option>
+          <option value="男性的">男性的</option>
+          <option value="女性的">女性的</option>
+          <option value="フォーマル">フォーマル</option>
+          <option value="カジュアル">カジュアル</option>
+          <option value="専門的">専門的</option>
+          <option value="読者に語りかけるような口調">読者に語りかけるような口調</option>
+        </select>
+
+        <label>出力形式</label>
+        <select id="format">
+          <option value="html">HTML形式</option>
+          <option value="text">テキスト形式</option>
+        </select>
+
+        <label><input id="autoTitles" type="checkbox" checked /> タイトル候補を自動提案（3案）</label>
+
+        <div class="actions">
+          <button id="btnGenTitles" class="btn primary">タイトル案を生成</button>
+          <button id="btnGenArticle" class="btn primary">記事を生成</button>
+          <button id="btnClear" class="btn">クリア</button>
+        </div>
+      </section>
+
+      <section id="titlesSection" class="card hidden">
+        <h2>タイトル候補（クリックで選択）</h2>
+        <div id="titleSuggestions" class="titles"></div>
+        <div class="manual-title">
+          <label>自分でタイトルを入力（候補が気に入らない場合）</label>
+          <input id="manualTitle" type="text" placeholder="ここに自作タイトルを入力" />
+          <div class="actions">
+            <button id="btnUseManual" class="btn">このタイトルを使う</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="articleSection" class="card hidden">
+        <h2>確定タイトル</h2>
+        <p id="confirmedTitle" class="confirmed">（未選択）</p>
+
+        <div class="actions">
+          <button id="btnCopy" class="btn">コピー</button>
+          <button id="btnDownload" class="btn">ダウンロード(.txt)</button>
+        </div>
+
+        <div id="status" class="status">—</div>
+        <pre id="result" class="result" aria-live="polite"></pre>
+      </section>
+    </main>
+
+    <footer><p>© 2025 TERU</p></footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
