@@ -1,22 +1,17 @@
-// Settings
-const API_BASE = "https://teru-ai-proxy-u76v.onrender.com";
-const MODEL = "gpt-4-turbo";
+// === Settings ===
+const API_BASE = "https://teru-ai-proxy-u76v.onrender.com"; // Render proxy
 
-// Constraints
-const MIN_H2 = 4;
-const MIN_H3_PER_H2 = 3;
-const MIN_H3_CHARS = 300;
-const TARGET_CHARS = 3000;
-
-// DOM
+// === DOM helpers ===
 const el = (id)=>document.getElementById(id);
-const show = (n)=>n.classList.remove('hidden');
-const hide = (n)=>n.classList.add('hidden');
-const charCount = (s)=>s?s.length:0;
+const show = (node)=>node.classList.remove('hidden');
+const hide = (node)=>node.classList.add('hidden');
+const charCount = (s)=> s ? s.length : 0;
 
+// === Elements ===
 const keywordsEl = el('keywords');
 const toneEl = el('tone');
 const formatEl = el('format');
+const autoTitlesEl = el('autoTitles');
 
 const btnGenTitles = el('btnGenTitles');
 const btnGenArticle = el('btnGenArticle');
@@ -34,11 +29,11 @@ const confirmedTitleEl = el('confirmedTitle');
 const statusEl = el('status');
 const resultEl = el('result');
 
-// API
+// === API proxy ===
 async function proxyChat(body){
   const res = await fetch(API_BASE + "/chat/completions", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
   if(!res.ok){
@@ -48,8 +43,8 @@ async function proxyChat(body){
   return await res.json();
 }
 
-// Prompts
-function buildTitlePrompt(keywords,tone){
+// === Prompts ===
+function buildTitlePrompt(keywords, tone){
   return `あなたはSEOに強い日本語コピーライターです。以下のキーワードを必ず含め、クリックされやすい魅力的なタイトルを3案提案してください。
 各タイトルは30〜60文字で、数字・疑問・ベネフィットなどのフックを入れてください。
 口調: ${tone}
@@ -61,8 +56,9 @@ function buildTitlePrompt(keywords,tone){
 3) タイトル案C`;
 }
 
+// Step 1: SERP風H2案（Google 1ページ目を模倣して一般化・リライト）
 function buildSERPPlanPrompt(title, keywords){
-  return `次のブログタイトルとキーワードで、Google検索の1ページ目上位サイトに共通するH2見出しの要素を抽象化・一般化して、リライトしたH2候補を8個以上提案してください。
+  return `次のブログタイトルとキーワードで、Google検索の1ページ目上位サイトに共通するH2見出しの要素を抽象化・一般化して、リライトしたH2候補を少なくとも6個提案してください。
 - コピーは厳禁。一般化・言い換え・要素分解で独自性を確保する。
 - 主要キーワードまたは派生語をH2に含める。
 - 出力は「H2: ...」形式の箇条書き。
@@ -71,9 +67,10 @@ function buildSERPPlanPrompt(title, keywords){
 キーワード: ${keywords}`;
 }
 
+// Step 2: 本文生成（H2>=4, 各H2にH3>=3 かつ各H3>=300字, まとめ1回 300字）
 function buildArticlePromptWithPlan(title, keywords, tone, format, planH2List){
   const fmt = format === 'html' ? 'HTML（<h1><h2><h3>と<p>）' : 'テキスト（#見出し記法）';
-  const joined = planH2List.slice(0,10).map(h=>`- ${h}`).join('\n');
+  const joined = planH2List.slice(0,8).map(h=>`- ${h}`).join('\n');
   return `あなたはSEO検定1級レベルの日本語ライターです。次のH2候補プランから最低4つ以上を採用し、以下の厳密な条件で完全な記事を${fmt}で出力してください（途中で切らない）。
 タイトル: ${title}
 キーワード: ${keywords}
@@ -85,29 +82,13 @@ ${joined}
 厳密条件:
 - 導入（リード）は300文字以上。共感＋問題提起＋読むメリットを含める。
 - 本文は、導入 → H2（4つ以上） → 各H2の下にH3を3つ以上配置し、各H3の本文は300文字以上にする。
-- Google検索の1ページ目の上位記事の構成要素を参考に、リライト・加筆して有益性を高める（コピーは不可）。
 - 最後に「まとめ」を1回だけ配置し、300文字以上の自然な本文（結論＋具体的行動）を書く。まとめ以降は何も出力しない。
 - FAQは生成しない。
 - すべてのH2の見出しに主要キーワードまたは派生語を1回以上含める。
 - 文章は冗長にせず、例・手順・注意点・チェックリストなど具体性を重視する。`;
 }
 
-function buildContinuationPrompt(current){
-  return `以下の記事はまだ条件を満たしていません。続きと加筆を行い、下記のすべてを満たしてください。
-必須:
-- 総文字数を少なくとも${TARGET_CHARS}文字にする
-- H2を${MIN_H2}つ以上、各H2ごとにH3を${MIN_H3_PER_H2}つ以上
-- すべてのH3本文を${MIN_H3_CHARS}文字以上に拡張（具体例・データ・手順・注意点を追加）
-- まとめは末尾に1回だけ（300文字以上）、途中には出さない
-- Google検索1ページ目の上位記事を参考に、構成・内容をリライト・加筆（コピーは不可）
-
-===現状記事===
-${current}
-
-===続きと加筆（条件を厳守）===`;
-}
-
-// Helpers
+// === Title generation ===
 function parseTitles(raw){
   const lines = raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
   const titles = [];
@@ -115,53 +96,33 @@ function parseTitles(raw){
     const m = line.match(/^\d+\)\s*(.+)$/);
     if(m){ titles.push(m[1].trim()); }
   }
-  if(!titles.length){
+  if(titles.length === 0){
     for(const line of lines){
-      if(!/^[-*]/.test(line) && line.length>=5){
+      if(!/^[-*]/.test(line) && line.length >= 5){
         titles.push(line);
-        if(titles.length>=3) break;
+        if(titles.length >= 3) break;
       }
     }
   }
   return titles.slice(0,3);
 }
 
-function toTextFromHTML(html){
-  return html
-    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '\n# $1\n')
-    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '\n## $1\n')
-    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '\n### $1\n')
-    .replace(/<p[^>]*>(.*?)<\/p>/gi, '\n$1\n')
-    .replace(/<[^>]+>/g,'')
-    .replace(/\n{3,}/g,'\n\n')
-    .trim();
-}
-
-function enforceSingleSummary(html){
-  const re = new RegExp("<h2>まとめ<\\/h2>[\\s\\S]*?(?=<h2>|$)","gi");
-  // keep last occurrence only
-  const matches = [...html.matchAll(re)];
-  if(matches.length<=1) return html;
-  const last = matches[matches.length-1][0];
-  // remove all then append last
-  html = html.replace(re,"");
-  return html + "\n\n" + last;
-}
-
-// UI events
 el('btnGenTitles').addEventListener('click', async ()=>{
   const keywords = keywordsEl.value.trim();
   const tone = toneEl.value;
-  if(!keywords) return alert("キーワードを入力してください。");
-
+  if(!keywords) return alert("キーワードを入力してください.");
   show(titlesSection); hide(articleSection);
   titleSuggestionsEl.innerHTML = "生成中…"; confirmedTitleEl.textContent = "（未選択）";
 
   try{
     const data = await proxyChat({
-      model: MODEL,
-      messages: [{role:"system",content:"あなたは有能なコピーライターです。"}, {role:"user",content:buildTitlePrompt(keywords, tone)}],
-      max_tokens: 400, temperature: 0.6
+      model: "gpt-4-turbo",
+      messages: [
+        {role:"system",content:"あなたは有能なコピーライターです。"},
+        {role:"user",content:buildTitlePrompt(keywords, tone)}
+      ],
+      max_tokens: 400,
+      temperature: 0.6
     });
     const text = data.choices?.[0]?.message?.content || "";
     const titles = parseTitles(text);
@@ -177,7 +138,7 @@ el('btnGenTitles').addEventListener('click', async ()=>{
     });
   }catch(err){
     console.error(err);
-    titleSuggestionsEl.innerHTML = "<div class='status'>エラー: "+ err.message +"</div>";
+    titleSuggestionsEl.innerHTML = "<div class='status'>エラー: " + err.message + "</div>";
   }
 });
 
@@ -188,8 +149,9 @@ el('btnUseManual').addEventListener('click', ()=>{
   show(articleSection);
 });
 
+// === Main generation with SERP plan & hard constraints ===
 el('btnGenArticle').addEventListener('click', async ()=>{
-  const title = confirmedTitleEl.textContent && confirmedTitleEl.textContent!=="（未選択）" ? confirmedTitleEl.textContent : manualTitleEl.value.trim();
+  const title = confirmedTitleEl.textContent && confirmedTitleEl.textContent !== "（未選択）" ? confirmedTitleEl.textContent : manualTitleEl.value.trim();
   if(!title) return alert("先にタイトルを選択または入力してください。");
 
   const keywords = keywordsEl.value.trim();
@@ -199,57 +161,87 @@ el('btnGenArticle').addEventListener('click', async ()=>{
   statusEl.textContent = "SERP見出しプラン作成中…";
   resultEl.textContent = "";
   try{
-    // Step1 plan
+    // Step 1: SERP-like H2 plan
     const planRes = await proxyChat({
-      model: MODEL,
-      messages: [{role:"system",content:"あなたは熟練のSEOコンテンツプランナーです。"}, {role:"user",content:buildSERPPlanPrompt(title, keywords)}],
-      temperature: 0.3, max_tokens: 700
+      model: "gpt-4-turbo",
+      messages: [
+        {role:"system",content:"あなたは熟練のSEOコンテンツプランナーです。"},
+        {role:"user",content:buildSERPPlanPrompt(title, keywords)}
+      ],
+      temperature: 0.3,
+      max_tokens: 600
     });
     const planText = planRes.choices?.[0]?.message?.content || "";
-    const planH2 = planText.split(/\r?\n/).map(l=>l.replace(/^H2:\s*/i,'').trim()).filter(Boolean);
+    const planH2 = planText.split(/\r?\n/).map(l=>l.replace(/^H2:\s*/i,'').trim()).filter(l=>l);
 
-    // Step2 draft
+    // Step 2: article draft with hard constraints
     statusEl.textContent = "本文の初回生成中…";
-    const draftRes = await proxyChat({
-      model: MODEL,
-      messages: [{role:"system",content:"あなたはプロのSEOライターです。"},
-                 {role:"user",content:buildArticlePromptWithPlan(title,keywords,tone,format,planH2)}],
-      temperature: 0.18, max_tokens: 3200
+    const articleRes = await proxyChat({
+      model: "gpt-4-turbo",
+      messages: [
+        {role:"system",content:"あなたはプロのSEOライターです。"},
+        {role:"user",content:buildArticlePromptWithPlan(title, keywords, tone, format, planH2)}
+      ],
+      temperature: 0.2,
+      max_tokens: 3200
     });
-    let total = draftRes.choices?.[0]?.message?.content || "";
+    let content = articleRes.choices?.[0]?.message?.content || "";
+    let total = content;
 
-    // remove early summaries
-    total = enforceSingleSummary(total.replace(/<h2>まとめ<\/h2>[\s\S]*?(?=<h2>|$)/gi,""));
+    // Remove any early summaries
+    const removeSummaryRegex = new RegExp("<h2>まとめ<\\/h2>[\\s\\S]*?(?=<h2>|$)", "gi");
+    total = total.replace(removeSummaryRegex, "");
 
-    // Loop: enforce TARGET_CHARS and structure
+    // Continuation until >=3000 chars (compacted)
+    const target = 3000;
     let guard = 0;
-    while(guard < 10){
-      const compactLen = charCount(total.replace(/\s+/g,''));
-      const h2Count = (total.match(/<h2\b[^>]*>/gi)||[]).length;
-      const h3Count = (total.match(/<h3\b[^>]*>/gi)||[]).length;
-      if(compactLen >= TARGET_CHARS && h2Count >= MIN_H2 && h3Count >= MIN_H2*MIN_H3_PER_H2) break;
-
+    while(charCount(total.replace(/\s+/g,"")) < target && guard < 10){
       guard++;
-      statusEl.textContent = `追記中…（H2:${h2Count} / H3:${h3Count} / 文字数:${compactLen}）`;
+      statusEl.textContent = `追記中…（現在 ${charCount(total)}文字）`;
       const contRes = await proxyChat({
-        model: MODEL,
-        messages: [{role:"system",content:"あなたはプロのSEOライターです。"},
-          {role:"user",content:buildContinuationPrompt(total)}],
-        temperature: 0.18, max_tokens: 1800
+        model: "gpt-4-turbo",
+        messages: [
+          {role:"system",content:"あなたはプロのSEOライターです。"},
+          {role:"user",content:`以下の記事の不足分を追記してください。各H2にH3を3つ以上、各H3は300文字以上を維持。最後に<h2>まとめ</h2>を300文字以上で1回だけ追加してください（途中には出さない）。\n\n===記事===\n${total}\n\n===追記===`}
+        ],
+        temperature: 0.2,
+        max_tokens: 1600
       });
       const add = contRes.choices?.[0]?.message?.content || "";
-      total = enforceSingleSummary((total + "\n\n" + add).replace(/<h2>まとめ<\/h2>[\s\S]*?(?=<h2>|$)/gi,""));
+      total += "\n\n" + add;
+      total = total.replace(removeSummaryRegex, "");
     }
 
-    // if text format requested
+    // Ensure final summary exists
+    if(!/<h2>まとめ<\/h2>/i.test(total)){
+      const sumRes = await proxyChat({
+        model: "gpt-4-turbo",
+        messages: [
+          {role:"system",content:"あなたはプロのSEOライターです。"},
+          {role:"user",content:`この記事の最後に<h2>まとめ</h2>と<p>で300文字以上の自然なまとめ（結論＋行動喚起）を追加してください。既存本文は壊さないでください。\n\n===既存記事===\n${total}`}
+        ],
+        temperature: 0.15,
+        max_tokens: 700
+      });
+      const sumText = sumRes.choices?.[0]?.message?.content || "";
+      total += "\n\n" + sumText;
+    }
+
+    // Output format
     let out = total;
     if(format === "text"){
-      out = toTextFromHTML(total);
+      out = out
+        .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '\n# $1\n')
+        .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '\n## $1\n')
+        .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '\n### $1\n')
+        .replace(/<p[^>]*>(.*?)<\/p>/gi, '\n$1\n')
+        .replace(/<[^>]+>/g,'')
+        .replace(/\n{3,}/g,'\n\n')
+        .trim();
     }
 
     resultEl.textContent = out;
-    const finalLen = charCount(out);
-    statusEl.textContent = `生成完了（約 ${finalLen} 文字）`;
+    statusEl.textContent = `生成完了（約 ${charCount(out)} 文字）`;
     show(articleSection);
   }catch(err){
     console.error(err);
@@ -258,18 +250,18 @@ el('btnGenArticle').addEventListener('click', async ()=>{
 });
 
 // Misc
-btnCopy.addEventListener('click', ()=>{
+el('btnCopy').addEventListener('click', ()=>{
   navigator.clipboard.writeText(resultEl.textContent||"");
   alert("コピーしました");
 });
-btnDownload.addEventListener('click', ()=>{
+el('btnDownload').addEventListener('click', ()=>{
   const blob = new Blob([resultEl.textContent||""], {type:"text/plain;charset=utf-8"});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = "article.txt";
   a.click();
 });
-btnClear.addEventListener('click', ()=>{
+el('btnClear').addEventListener('click', ()=>{
   keywordsEl.value = "";
   manualTitleEl.value = "";
   titleSuggestionsEl.innerHTML = "";
@@ -279,6 +271,3 @@ btnClear.addEventListener('click', ()=>{
   hide(titlesSection);
   hide(articleSection);
 });
-
-// Title generation shortcut (optional separate step)
-el('btnGenTitles').click = null;  # no-op placeholder
