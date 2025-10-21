@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TERU AI SEO Expert（検定1級・強化版）</title>
+  <title>TERU AI Blog Generator（SEO Expert Ver.2）</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="wrap">
     <header class="hero">
-      <h1>TERU AI SEO Expert</h1>
-      <p>H2×4以上 / 各H2にH3×3以上（各300字+） / 総3000字+ / まとめは末尾1回のみ。Render経由で安全接続。</p>
+      <h1>TERU AI Blog Generator（SEO Expert Ver.2）</h1>
+      <p>H2×4以上・各H2にH3×3（各300字以上）・総文字数3000字以上・最後にまとめ1回のみ。SERPリライト対応。</p>
     </header>
 
     <main>
       <section class="card">
         <label>キーワード（主要語：カンマ区切り）</label>
-        <input id="keywords" type="text" placeholder="例：副業, 40代, 安全な始め方" />
+        <input id="keywords" type="text" placeholder="例：副業, ブログ, SEO" />
 
         <label>口調</label>
         <select id="tone">
@@ -35,6 +35,8 @@
           <option value="html">HTML形式</option>
           <option value="text">テキスト形式</option>
         </select>
+
+        <label><input id="autoTitles" type="checkbox" checked /> タイトル候補を自動提案（3案）</label>
 
         <div class="actions">
           <button id="btnGenTitles" class="btn primary">タイトル案を生成</button>
