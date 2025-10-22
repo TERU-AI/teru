@@ -1,1 +1,0 @@
-<the full JS provided by user>
