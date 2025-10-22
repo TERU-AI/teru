@@ -1,5 +1,5 @@
 // Render proxy base
-const API_BASE = "https://teru-proxy.onrender.com"; 
+const API_BASE = "https://teru-ai-proxy-u76v.onrender.com"; 
 
 // DOM refs
 const keywordsEl = document.getElementById('keywords');
